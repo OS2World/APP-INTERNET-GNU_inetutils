@@ -1,0 +1,591 @@
+*** f:/gcc/inetutils-1.0/libinetutils/localhost.c	Sat Jul 13 01:48:22 1996
+--- f:/gcc/inetutils/source/libinetutils/localhost.c	Sat Jul 27 12:32:06 1996
+***************
+*** 22,27 ****
+--- 22,30 ----
+  #include <malloc.h>
+  #include <string.h>
+  #include <errno.h>
++ #ifdef __EMX__
++ # include <stdlib.h>
++ #endif
+  
+  /* Return the name of the localhost.  This is just a wrapper for gethostname,
+     which takes care of allocating a big enough buffer, and caches the result
+***************
+*** 64,66 ****
+--- 67,79 ----
+  
+    return buf;
+  }
++ 
++ #ifdef __EMX__
++ int gethostname(char *buf,int buf_len)
++ {
++     char *ptr=getenv("HOSTNAME");
++     if (!ptr) return 1; /* HOST_NOT_FOUND from netdb.h */
++     strncpy(buf,ptr,buf_len);
++     return 0;
++ }
++ #endif /* __EMX__ */
+
+*** f:/gcc/inetutils-1.0/libinetutils/stub_tgetent.c	Wed Jul 10 21:27:12 1996
+--- f:/gcc/inetutils/source/libinetutils/stub_tgetent.c	Sat Jul 27 12:20:46 1996
+***************
+*** 1,7 ****
+  /* Return an error saying we couldn't find any termcap database.  */
+  int
+! tgetent (buf, type)
+! char *buf, *type
+  {
+    return -1;
+  }
+--- 1,6 ----
+  /* Return an error saying we couldn't find any termcap database.  */
+  int
+! tgetent (char *buf, char *type)
+  {
+    return -1;
+  }
+
+*** f:/gcc/inetutils-1.0/libinetutils/ttymsg.c	Thu Jan 04 00:45:38 1996
+--- f:/gcc/inetutils/source/libinetutils/ttymsg.c	Sat Jul 27 12:20:36 1996
+***************
+*** 40,47 ****
+  #include <signal.h>
+  #include <fcntl.h>
+  #include <dirent.h>
+! #include <errno.h>
+! #include <paths.h>
+  #include <unistd.h>
+  #include <stdio.h>
+  #include <string.h>
+--- 40,49 ----
+  #include <signal.h>
+  #include <fcntl.h>
+  #include <dirent.h>
+! # include <errno.h>
+! #ifndef __EMX__
+! # include <paths.h>
+! #endif /* __EMX__ */
+  #include <unistd.h>
+  #include <stdio.h>
+  #include <string.h>
+***************
+*** 61,66 ****
+--- 63,71 ----
+  	char *line;
+  	int tmout;
+  {
++ #ifdef __EMX__
++         return "ttymsg() from libinetutils not supported in this port.\n";
++ #else
+  	static char device[MAXNAMLEN] = _PATH_DEV;
+  	static char errbuf[1024];
+  	register int cnt, fd, left, wret;
+***************
+*** 160,163 ****
+--- 165,169 ----
+  	if (forked)
+  		_exit(0);
+  	return (NULL);
++ #endif /* __EMX__ */
+  }
+*** f:/gcc/inetutils-1.0/ftp/cmds.c	Thu Jul 11 01:18:14 1996
+--- f:/gcc/inetutils/source/ftp/cmds.c	Sat Jul 27 15:15:10 1996
+***************
+*** 46,52 ****
+--- 46,54 ----
+  #include <arpa/ftp.h>
+  
+  #include <ctype.h>
++ #ifndef __EMX__
+  #include <err.h>
++ #endif
+  #include <errno.h>
+  #include <glob.h>
+  #include <netdb.h>
+***************
+*** 56,65 ****
+--- 58,73 ----
+  #include <string.h>
+  #include <time.h>
+  #include <unistd.h>
++ #ifndef __EMX__
+  #include <paths.h>
++ #endif
+  
+  #include "ftp_var.h"
+  
++ #ifdef __EMX__
++ typedef void *sig_t;
++ #endif
++ 
+  #ifndef HAVE_STRDUP
+  static char *
+  strdup (str)
+***************
+*** 613,619 ****
+--- 621,631 ----
+  		}
+  
+  		memset(&gl, 0, sizeof(gl));
++ #ifndef __EMX__
+  		flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_TILDE;
++ #else /* __EMX__ */
++ 		flags = GLOB_NOCHECK;
++ #endif
+  #ifdef GLOB_QUOTE
+  		flags |= GLOB_QUOTE;
+  #endif
+***************
+*** 892,897 ****
+--- 904,912 ----
+  		return cp ? 0 : strdup (cp);
+  	}
+  	if (ftemp == NULL) {
++ #ifdef __EMX__
++ #define _PATH_TMP "./"            
++ #endif
+  		char temp[sizeof _PATH_TMP + sizeof "XXXXXX"];
+  
+  		strcpy (temp, _PATH_TMP);
+***************
+*** 1408,1414 ****
+--- 1423,1433 ----
+  	pid_t pid;
+  	sig_t old1, old2;
+  	char shellnam[40], *shell, *namep;
++ #ifndef __EMX__
+  	union wait status;
++ #else /* __EMX__ */
++         int status;
++ #endif /* __EMX__ */
+  
+  	old1 = signal (SIGINT, SIG_IGN);
+  	old2 = signal (SIGQUIT, SIG_IGN);
+***************
+*** 1418,1425 ****
+--- 1437,1451 ----
+  		(void) signal(SIGINT, SIG_DFL);
+  		(void) signal(SIGQUIT, SIG_DFL);
+  		shell = getenv("SHELL");
++ #ifdef __EMX__
++                 if (shell==NULL) 
++                     shell=getenv("COMSPEC");
++                 if (shell==NULL)
++                     shell="cmd.exe";
++ #else /* __EMX__ */
+  		if (shell == NULL)
+  			shell = _PATH_BSHELL;
++ #endif /* __EMX__ */
+  		namep = strrchr(shell,'/');
+  		if (namep == NULL)
+  			namep = shell;
+***************
+*** 1743,1750 ****
+  fatal(msg)
+  	char *msg;
+  {
+! 
+  	errx(1, "%s", msg);
+  }
+  
+  /*
+--- 1769,1780 ----
+  fatal(msg)
+  	char *msg;
+  {
+! #ifndef __EMX__
+  	errx(1, "%s", msg);
++ #else
++         printf("%s",msg);
++         abort();
++ #endif
+  }
+  
+  /*
+***************
+*** 1763,1769 ****
+--- 1793,1803 ----
+  	if (!doglob)
+  		return strdup (cp);
+  
++ #ifndef __EMX__
+  	flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_TILDE;
++ #else
++ 	flags = GLOB_NOCHECK;
++ #endif
+  #ifdef GLOB_QUOTE
+  	flags |= GLOB_QUOTE;
+  #endif
+
+
+
+*** f:/gcc/inetutils-1.0/ftp/extern.h	Mon Feb 12 18:30:22 1996
+--- f:/gcc/inetutils/source/ftp/extern.h	Sat Jul 27 15:08:14 1996
+***************
+*** 36,41 ****
+--- 36,46 ----
+  struct timeval;
+  struct fd_set;
+  
++ #ifdef __EMX__
++ #define __P(a) a
++ #include <sys/types.h>
++ #endif
++ 
+  void    abort_remote __P((FILE *));
+  void    abortpt __P(());
+  void    abortrecv __P(());
+***************
+*** 59,65 ****
+--- 64,74 ----
+  char   *domap __P((char *));
+  void	doproxy __P((int, char **));
+  char   *dotrans __P((char *));
++ #ifndef __EMX__
+  int     empty __P((fd_set *, int));
++ #else
++ int     empty __P((fd_set *, int));
++ #endif
+  void	fatal __P((char *));
+  void	get __P((int, char **));
+  struct cmd *getcmd __P((char *));
+
+
+*** f:/gcc/inetutils-1.0/ftp/ftp.c	Mon Feb 12 19:22:22 1996
+--- f:/gcc/inetutils/source/ftp/ftp.c	Sat Jul 27 15:18:20 1996
+***************
+*** 54,60 ****
+  #include <arpa/telnet.h>
+  
+  #include <ctype.h>
+! #include <err.h>
+  #include <errno.h>
+  #include <fcntl.h>
+  #include <netdb.h>
+--- 54,62 ----
+  #include <arpa/telnet.h>
+  
+  #include <ctype.h>
+! #ifndef __EMX__
+! # include <err.h>
+! #endif
+  #include <errno.h>
+  #include <fcntl.h>
+  #include <netdb.h>
+***************
+*** 68,73 ****
+--- 70,79 ----
+  
+  #include "ftp_var.h"
+  
++ #ifdef __EMX__
++ typedef void (*sig_t)(int);
++ #endif
++ 
+  extern int h_errno;
+  
+  struct	sockaddr_in hisctladdr;
+***************
+*** 100,106 ****
+--- 106,116 ----
+  	} else {
+  		hp = gethostbyname(host);
+  		if (hp == NULL) {
++ #ifndef __EMX__
+  			warnx("%s: %s", host, hstrerror(h_errno));
++ #else
++                         warnx("gethostbyname(): error (hstrerror not supported)\n");
++ #endif
+  			code = -1;
+  			return ((char *) 0);
+  		}
+***************
+*** 830,835 ****
+--- 840,846 ----
+  		}
+  		closefunc = fclose;
+  	}
++ #ifndef __EMX__
+  	if (fstat(fileno(fout), &st) < 0 || st.st_blksize == 0)
+  		st.st_blksize = BUFSIZ;
+  	if (st.st_blksize > bufsize) {
+***************
+*** 843,848 ****
+--- 854,860 ----
+  		}
+  		bufsize = st.st_blksize;
+  	}
++ #endif /* __EMX__ */
+  	(void) gettimeofday(&start, (struct timezone *)0);
+  	switch (curtype) {
+  
+
+
+*** f:/gcc/inetutils-1.0/ftp/main.c	Thu Jul 11 05:19:36 1996
+--- f:/gcc/inetutils/source/ftp/main.c	Sat Jul 27 15:25:04 1996
+***************
+*** 51,57 ****
+  #include <arpa/ftp.h>
+  
+  #include <ctype.h>
+! #include <err.h>
+  #include <netdb.h>
+  #include <pwd.h>
+  #include <signal.h>
+--- 51,59 ----
+  #include <arpa/ftp.h>
+  
+  #include <ctype.h>
+! #ifndef __EMX__
+! # include <err.h>
+! #endif
+  #include <netdb.h>
+  #include <pwd.h>
+  #include <signal.h>
+***************
+*** 66,72 ****
+--- 68,78 ----
+  #define USAGE "Usage: %s [OPTION...] [HOST [PORT]]\n"
+  
+  /* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
++ #ifndef __EMX__
+  extern char *__progname;
++ #else
++ char *__progname;
++ #endif
+  
+  /* Print a help message describing all options to STDOUT and exit with a
+     status of 0.  */
+***************
+*** 125,133 ****
+  	struct passwd *pw = NULL;
+  	char *cp;
+  
+  	sp = getservbyname("ftp", "tcp");
+  	if (sp == 0)
+! 		errx(1, "ftp/tcp: unknown service");
+  	doglob = 1;
+  	interactive = 1;
+  	autologin = 1;
+--- 131,144 ----
+  	struct passwd *pw = NULL;
+  	char *cp;
+  
++ #ifdef __EMX__
++         __progname=argv[0];
++ #endif
++ 
+  	sp = getservbyname("ftp", "tcp");
+  	if (sp == 0)
+!             errx(1, "ftp/tcp: unknown service");
+! 
+  	doglob = 1;
+  	interactive = 1;
+  	autologin = 1;
+
+*** f:/gcc/inetutils-1.0/ftp/ruserpass.c	Sat Jul 13 01:51:16 1996
+--- f:/gcc/inetutils/source/ftp/ruserpass.c	Sat Jul 27 15:08:14 1996
+***************
+*** 39,45 ****
+  #include <sys/stat.h>
+  
+  #include <ctype.h>
+! #include <err.h>
+  #include <errno.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+--- 39,47 ----
+  #include <sys/stat.h>
+  
+  #include <ctype.h>
+! #ifndef __EMX__
+! # include <err.h>
+! #endif
+  #include <errno.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+*** f:/gcc/inetutils-1.0/telnet/commands.c	Sat Jul 13 02:14:20 1996
+--- f:/gcc/inetutils/source/telnet/commands.c	Sat Jul 27 14:02:04 1996
+***************
+*** 36,53 ****
+  #endif /* not lint */
+  
+  #if	defined(unix)
+! #include <sys/param.h>
+! #if	defined(CRAY) || defined(sysV88)
+! #include <sys/types.h>
+! #endif
+! #include <sys/file.h>
+  #else
+! #include <sys/types.h>
+  #endif	/* defined(unix) */
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #ifdef	CRAY
+! #include <fcntl.h>
+  #endif	/* CRAY */
+  
+  #include <signal.h>
+--- 36,53 ----
+  #endif /* not lint */
+  
+  #if	defined(unix)
+! # include <sys/param.h>
+! # if	defined(CRAY) || defined(sysV88)
+! #  include <sys/types.h>
+! # endif
+! # include <sys/file.h>
+  #else
+! # include <sys/types.h>
+  #endif	/* defined(unix) */
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #ifdef	CRAY
+! # include <fcntl.h>
+  #endif	/* CRAY */
+  
+  #include <signal.h>
+***************
+*** 1390,1395 ****
+--- 1390,1399 ----
+      int argc;
+      char *argv[];
+  {
++ #ifdef __EMX__
++     fprintf(stderr,"This port does not support shells.\n");
++     return 1;
++ #else
+      long oldrows, oldcols, newrows, newcols, err;
+  
+      setcommandmode();
+***************
+*** 1432,1437 ****
+--- 1436,1442 ----
+  	    break;
+      }
+      return 1;
++ #endif /* __EMX__ */
+  }
+  #else	/* !defined(TN3270) */
+  extern int shell();
+***************
+*** 2412,2418 ****
+  #endif
+  #if	defined(IPPROTO_IP) && defined(IP_TOS)
+  	{
+! # if	defined(HAS_GETTOS)
+  	    struct tosent *tp;
+  	    if (tos < 0 && (tp = gettosbyname("telnet", "tcp")))
+  		tos = tp->t_tos;
+--- 2417,2423 ----
+  #endif
+  #if	defined(IPPROTO_IP) && defined(IP_TOS)
+  	{
+! # if	defined(HAS_GETTOS) && !defined(__EMX__)
+  	    struct tosent *tp;
+  	    if (tos < 0 && (tp = gettosbyname("telnet", "tcp")))
+  		tos = tp->t_tos;
+***************
+*** 2839,2844 ****
+--- 2844,2853 ----
+  	char	**cpp;
+  	int	*lenp;
+  {
++ #ifdef __EMX__
++         fprintf(stderr,"sourceroute() not functional in this port.\n");
++         return -1;
++ #else
+  	static char lsr[44];
+  #ifdef	sysV88
+  	static IOPTN ipopt;
+***************
+*** 2965,2969 ****
+--- 2974,2979 ----
+  	*cpp = (char *) &ipopt;
+  #endif
+  	return(sin_addr.s_addr);
++ #endif /* EMX */
+  }
+  #endif
+
+
+
+
+
+
+*** f:/gcc/inetutils-1.0/telnet/main.c	Thu Jul 11 04:49:34 1996
+--- f:/gcc/inetutils/source/telnet/main.c	Sat Jul 27 14:29:02 1996
+***************
+*** 129,135 ****
+  #endif
+  
+  #if defined (ENCRYPTION) || defined (AUTHENTICATION) || defined (TN3270)
+!   putc ('\n');
+  #endif
+  
+    puts ("\
+--- 129,135 ----
+  #endif
+  
+  #if defined (ENCRYPTION) || defined (AUTHENTICATION) || defined (TN3270)
+!   putc ('\n',stdout);
+  #endif
+  
+    puts ("\
+***************
+*** 233,239 ****
+  			break;
+  		case 'S':
+  		    {
+! #ifdef	HAS_GETTOS
+  			extern int tos;
+  
+  			if ((tos = parsetos(optarg, "tcp")) < 0)
+--- 233,239 ----
+  			break;
+  		case 'S':
+  		    {
+! #if defined(HAS_GETTOS) && !defined(__EMX__)
+  			extern int tos;
+  
+  			if ((tos = parsetos(optarg, "tcp")) < 0)
+
+
+
+
+*** f:/gcc/inetutils-1.0/telnet/sys_bsd.c	Mon Feb 12 18:30:54 1996
+--- f:/gcc/inetutils/source/telnet/sys_bsd.c	Sat Jul 27 14:29:02 1996
+***************
+*** 404,410 ****
+       * left to write out, it returns -1 if it couldn't do
+       * anything at all, otherwise it returns 1 + the number
+       * of characters left to write.
+! #ifndef	USE_TERMIO
+       * We would really like ask the kernel to wait for the output
+       * to drain, like we can do with the TCSADRAIN, but we don't have
+       * that option.  The only ioctl that waits for the output to
+--- 404,410 ----
+       * left to write out, it returns -1 if it couldn't do
+       * anything at all, otherwise it returns 1 + the number
+       * of characters left to write.
+! def	USE_TERMIO
+       * We would really like ask the kernel to wait for the output
+       * to drain, like we can do with the TCSADRAIN, but we don't have
+       * that option.  The only ioctl that waits for the output to
+***************
+*** 684,689 ****
+--- 684,694 ----
+      ioctl(tin, TIOCSETC, (char *)&tc);
+      ioctl(tin, TIOCSETN, (char *)&sb);
+  #else
++ 
++ #ifdef __EMX__
++     tmp_tc.c_lflag &= ~IDEFAULT;
++ #endif
++ 
+      if (tcsetattr(tin, TCSADRAIN, &tmp_tc) < 0)
+  	tcsetattr(tin, TCSANOW, &tmp_tc);
+  #endif

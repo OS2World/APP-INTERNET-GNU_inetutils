@@ -1,0 +1,46 @@
+This directory only contains those parts (patches applied) of the 
+GNU inetutils 1.0 that are needed to compile them under OS/2. On how to get 
+the whole package and for legal issues read the file ../readme.emx.
+
+These files/directories are not in the original distribution:
+
+        bsd-h                   (FreeBSD /usr/include/arpa/*)
+        readme                  (This file)
+        std.mk                  (Helper makefile, see there for legal terms)
+        headers/emx.h           (Some additional function declarations)
+        libinetutils/emx.c      (Some additional functions)
+
+You'll need EMX 0.9b fix 5 and dmake to compile these sources. If you've
+got them, do the following:
+
+        cd libinetutils
+        dmake -B
+        cd ..\libtelnet
+        dmake -B
+        cd ..\ftp
+        dmake -B
+        copy ftp.exe ..\..\bin
+        cd ..\telnet
+        dmake -B
+        copy telnet.exe ..\..\bin
+        
+If you get a *huge* lot of junk upon "dmake -B", use on of the following 
+commands instead (using MS-Shell or tcsh from ftp.leo.org or 
+ftp-os2.cdrom.com):
+
+        sh -c "dmake -B"
+        tcsh -c "dmake -B"
+
+If you get the message "dmake:  dependencies:  line 1:  Error -- Detected 
+circular dependency in graph at [...]" when running dmake, simply run it again 
+(same command line) until you get no more error messages.
+
+There should be no compiler warnings except in ftp/ruserpass.c, line 100.
+
+To clean up, you can remove all of the following files in all directories:
+
+        *.a
+        *.d
+        *.o
+        _state.mk
+        dependencies

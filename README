@@ -1,0 +1,22 @@
+GNU inetutils version 1.0
+
+This is a distribution of common networking utilities and servers.
+
+They are currently all from the 4.4BSD-Lite2 distribution, with some changes
+to make them compatible with the GNU hurd (in particular, the hurd does not
+define some arbitrary limits, such as MAXPATHLEN), and to remove some minor
+BSD dependencies.  A GNU build environment has also been added.
+
+As this release is intended mainly to support the GNU hurd, which is
+source compatible with BSD in many ways, there are probably many BSD
+dependencies remaining.
+
+Some known deficiencies:
+ o Most programs do not support long options, such as --version or --help.
+ o The authentication and encryption options have not been tested.
+ o GNU inetutils requires GNU make.
+
+See the file INSTALL for installation instructions.
+
+Please send all bug reports by electronic mail to:
+    bug-gnu-utils@prep.ai.mit.edu

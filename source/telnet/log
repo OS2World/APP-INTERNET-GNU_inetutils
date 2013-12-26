@@ -1,0 +1,104 @@
+telnet: setsockopt (IP_TOS) (ignored): Invalid argument
+F:\GCC\INETUTILS\TELNET\TELNET.EXE> Trying 194.97.87.3...
+Connected to robin.camelot.de.
+Escape character is '^]'.
+telnet: setsockopt (IP_TOS) (ignored): Invalid argument
+F:\GCC\INETUTILS\TELNET\TELNET.EXE> Will print hexadecimal representation of network traffic.
+F:\GCC\INETUTILS\TELNET\TELNET.EXE> Trying 194.97.87.3...
+Connected to robin.camelot.de.
+Escape character is '^]'.
+> 0x0	fffd03fffb18fffb1ffffb20fffb21fffb22fffb27fffd05
+< 0x0	fffd25
+> 0x0	0d0a
+< 0x0	fffb03fffd18fffd1ffffd20fffd21fffd22fffa220103fff0fffd27fffb05
+> 0x0	0d0afffc25
+> 0x0	0d0afffa220301030003620304030005030007621c0802040a02080b02150f01
+> 0x20	11100113110200120200fff0fffd03fffa220107fff0
+< 0x0	fffb26fffd23fffd24
+> 0x0	0d0a
+> 0x0	0d0afffe26fffc23fffc24
+> 0x0	0d0a
+< 0x0	fffa2001fff0fffa2701fff0fffa1801fff0
+> 0x0	0d0a
+> 0x0	0d0afffa2000393630302c39363030fff0fffa2700fff0fffa1800414e53492d
+> 0x20	434f4c4f522d33fff0
+> 0x0	0d0a
+< 0x0	fffa1801fff0
+> 0x0	0d0a
+> 0x0	0d0afffa1800414e53492d434f4c4f522d33fff0
+> 0x0	0d0a
+< 0x0	fffd01
+> 0x0	0d0a
+> 0x0	0d0afffc01
+> 0x0	0d0a
+< 0x0	fffb01fffa2102fff0fffd00fffc01
+> 0x0	0d0a
+< 0x0	fffa220301000004220f0502ffff0f8111108113118200128200fff00d0a2020
+< 0x20	20467265654253442028726f62696e2920287474797062290d0a0d0a0d0a0d0a
+< 0x40	0d0a0d0a0d0a0d0a0d0a0d0a0d0a0d0a0d0a0d0a0d0a0d0afffa22031100ffff
+< 0x60	1200fffffff06c6f67696e3a206c6f67696e3a206c6f67696e3a206c6f67696e
+< 0x80	3a206c6f67696e3a206c6f67696e3a206c6f67696e3a206c6f67696e3a206c6f
+< 0xa0	67696e3a206c6f67696e3a206c6f67696e3a206c6f67696e3a206c6f67696e3a
+< 0xc0	206c6f67696e3a206c6f67696e3a206c6f67696e3a20
+> 0x0	0d0afffd01fffb00fffe01
+
+   FreeBSD (robin) (ttypb)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+< 0x0	6c6f67696e3a20
+> 0x0	0afffa220301800004a20f0582fffffff0fffa22031180ffff1280fffffff0
+login: login: login: login: login: login: login: login: login: login: login: login: login: login: login: login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: > 0x0	0a
+login: > 0x0	0a
+< 0x0	6c6f67696e3a20
+> 0x0	0a
+> 0x0	0a
+login: < 0x0	6c6f67696e3a206c6f67696e3a20
+> 0x0	0a
+> 0x0	0a
+login: login: > 0x0	0a
+< 0x0	6c6f67696e3a206c6f67696e3a206c6f67696e3a206c6f67696e3a206c6f6769
+< 0x20	6e3a20
+> 0x0	0a
+< 0x0	6c6f67696e3a20
+> 0x0	0a
+login: login: login: login: login: > 0x0	0a
+login: > 0x0	0a
+< 0x0	6c6f67696e3a20
+> 0x0	0a
+< 0x0	6c6f67696e3a206c6f67696e3a206c6f67696e3a20
+> 0x0	0a
+login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: login: login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: < 0x0	6c6f67696e3a20
+> 0x0	0a
+login: > 0x0	0a
+login: > 0x0	0a
+< 0x0	6c6f67696e3a20
+> 0x0	0a
+> 0x0	0a
+login: > 0x0	0a
+< 0x0	6c6f67696e3a206c6f67696e3a20
+> 0x0	0a
